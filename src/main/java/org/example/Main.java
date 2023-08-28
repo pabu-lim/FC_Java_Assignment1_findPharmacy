@@ -1,6 +1,7 @@
 package org.example;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -55,7 +56,7 @@ public class Main {
             HttpEntity entity = httpResponse.getEntity();
             int statusCode = httpResponse.getStatusLine().getStatusCode();
 
-            if (statusCode == 200) {
+            if (statusCode == HttpStatus.SC_OK) {
                 String result = EntityUtils.toString(entity);
 
                 JSONObject jsonObject = new JSONObject(result);
@@ -84,7 +85,7 @@ public class Main {
             HttpEntity entity = httpResponse.getEntity();
             int statusCode = httpResponse.getStatusLine().getStatusCode();
 
-            if (statusCode == 200) {
+            if (statusCode == HttpStatus.SC_OK) {
                 String result = EntityUtils.toString(entity);
 
                 JSONObject jsonObject = new JSONObject(result);

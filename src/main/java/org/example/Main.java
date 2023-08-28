@@ -17,15 +17,16 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        String baseUrl = "https://dapi.kakao.com/v2/local/search/"; // Url
-        String restAPI = "keyword.json"; // 요청할 REST API 종류 - 키워드검색
-        String restAPI2 = "category.json"; // 요청할 REST API 종류 - 카테고리검색
-        String categoryGroupCode = "PM9"; // 약국
-        String query = "서울언주초등학교"; // 쿼리
-        String x = "126.8527773663502"; // x좌표
-        String y = "35.12999610435208"; // y좌표
-        int radius = 20000; // 거리m 반경
-        int size = 10; // 페이지에 보여질 개수(default:10)
+        final String REST_API_KEY = "KakaoAK 482726a9a7309e5c086e5f32b9899d52";
+        String baseUrl = "https://dapi.kakao.com/v2/local/search/";
+        String keywordType = "keyword.json";
+        String categoryType = "category.json";
+        String pharmacyCode = "PM9";
+        String query = "서울언주초등학교";
+        String latitude = "35.12999610435208";
+        String longitude = "126.8527773663502";
+        int radius = 20000;
+        int maxSize = 10;
 
 
         Scanner scanner = new Scanner(System.in);
@@ -34,7 +35,7 @@ public class Main {
         query = scanner.nextLine();
         System.out.print("검색 반경을 입력하세요(1000:1km):");
         radius = scanner.nextInt();
-        scanner.nextLine(); // nextInt사용 후 엔터 제거
+        scanner.nextLine();
         System.out.println();
 
         System.out.println("입력한 위치 키워드: " + query);
@@ -46,8 +47,8 @@ public class Main {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             String encodedQuery = URLEncoder.encode(query, "UTF-8"); // URL 인코딩
 
-            HttpGet httpGet = new HttpGet(baseUrl + restAPI + "?query=" + encodedQuery);
-            httpGet.addHeader("Authorization", "KakaoAK 482726a9a7309e5c086e5f32b9899d52");
+            HttpGet httpGet = new HttpGet(baseUrl + keywordType + "?query=" + encodedQuery);
+            httpGet.addHeader("Authorization", REST_API_KEY);
 
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
 
@@ -60,8 +61,10 @@ public class Main {
                 JSONObject jsonObject = new JSONObject(result);
                 JSONArray documentsArray = jsonObject.getJSONArray("documents");
                 JSONObject documentObject = documentsArray.getJSONObject(0);
-                x = documentObject.getString("x");
-                y = documentObject.getString("y");
+
+                latitude = documentObject.getString("y");
+                longitude = documentObject.getString("x");
+
 
             } else {
                 System.out.println("Error: " + statusCode);
@@ -74,8 +77,8 @@ public class Main {
         // 가져온 좌표와 입력받았던 반경으로 약국 카테고리 검색(결과는 상위 10개만)
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             String encodedQuery = URLEncoder.encode(query, "UTF-8"); // URL 인코딩
-            HttpGet httpGet = new HttpGet(baseUrl + restAPI2 + "?y=" + y + "&x=" + x + "&category_group_code=" + categoryGroupCode + "&radius=" + radius +"&size=" + size);
-            httpGet.addHeader("Authorization", "KakaoAK 482726a9a7309e5c086e5f32b9899d52");
+            HttpGet httpGet = new HttpGet(baseUrl + categoryType + "?y=" + latitude + "&x=" + longitude + "&category_group_code=" + pharmacyCode + "&radius=" + radius +"&size=" + maxSize);
+            httpGet.addHeader("Authorization", REST_API_KEY);
 
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
             HttpEntity entity = httpResponse.getEntity();
